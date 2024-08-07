@@ -4,41 +4,56 @@ import time
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.progress import Progress
-from config import API_KEY  # Importer la clé API depuis config.py
+from dotenv import load_dotenv
+import os
 
-# Configurer l'API d'OpenAI
-openai.api_key = API_KEY
+# Charger les variables d'environnement depuis le fichier .env
+load_dotenv()
+
+# Récupérer la clé API depuis les variables d'environnement
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 console = Console()
 
 # Catégories de questions
 CATEGORIES = ["Reading Comprehension", "Vocabulary", "Grammar", "Literary Analysis"]
 
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.score = 0
+        self.level = 1
+        self.experience = 0
+
+    def add_score(self, points):
+        self.score += points
+        self.experience += points
+        if self.experience >= self.level * 10:
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.experience = 0
+        console.print(f"[bold yellow]Congratulations! You've reached level {self.level}![/bold yellow]")
+
 def generate_question(category):
-    """
-    Génère une question à choix multiples pour la catégorie donnée.
-
-    Args:
-        category (str): La catégorie de la question à générer.
-
-    Returns:
-        str: La question générée ou un message d'erreur.
-    """
     prompt = (
         f"Generate a multiple choice question in English suitable for a 6th grade student. "
         f"The question should cover {category}. "
         "Provide four answer choices and indicate the correct answer."
     )
     try:
-        response = openai.Completion.create(
-            engine="text-davinci-004",
-            prompt=prompt,
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": prompt}
+            ],
             max_tokens=150,
             n=1,
             stop=None,
             temperature=0.7,
         )
-        question = response.choices[0].text.strip()
+        question = response.choices[0].message['content'].strip()
     except openai.error.OpenAIError as e:
         console.print(f"[red]Error generating question: {e}[/red]")
         question = f"Error: Could not generate {category} question. Using a default question instead."
@@ -46,15 +61,6 @@ def generate_question(category):
     return question
 
 def create_qcm(num_questions=25):
-    """
-    Crée un ensemble de questions à choix multiples.
-
-    Args:
-        num_questions (int): Le nombre de questions à générer.
-
-    Returns:
-        list: Une liste de tuples (catégorie, question).
-    """
     questions = []
     for _ in range(num_questions):
         category = random.choice(CATEGORIES)
@@ -63,37 +69,22 @@ def create_qcm(num_questions=25):
     return questions
 
 def extract_correct_answer(question):
-    """
-    Extrait la réponse correcte d'une question.
-
-    Args:
-        question (str): La question complète avec les choix.
-
-    Returns:
-        str: La lettre de la réponse correcte.
-    """
     choices = question.split('\n')
-    correct_answer = choices[1]  # Suppose that the first choice is the correct answer
-    return correct_answer.split(' ')[0]  # Extract the letter of the correct answer (A, B, C, or D)
+    correct_answer = choices[1]
+    return correct_answer.split(' ')[0]
 
 def show_hint(question):
-    """
-    Affiche un indice pour la question donnée.
-
-    Args:
-        question (str): La question complète avec les choix.
-    """
-    choices = question.split('\n')[1:]  # Get all choices
+    choices = question.split('\n')[1:]
     correct_answer = extract_correct_answer(question)
     wrong_answers = [choice for choice in choices if choice[0] != correct_answer]
     eliminated = random.choice(wrong_answers)
     console.print(f"[italic yellow]Hint: The answer is probably not {eliminated}[/italic yellow]")
 
 def main():
-    """
-    Fonction principale qui gère le déroulement du jeu.
-    """
     console.print("[bold blue]Welcome to the English Multiple Choice Quiz for 6th Grade Students![/bold blue]")
+    player_name = Prompt.ask("Enter your name")
+    player = Player(player_name)
+
     while True:
         questions = create_qcm()
         
@@ -122,8 +113,23 @@ def main():
             correct_answer = extract_correct_answer(question)
             if response.strip().lower() == correct_answer.strip().lower():
                 console.print("[green]Correct! Well done![/green]")
+                points = max(1, int(30 - (time.time() - start_time)))
+                player.add_score(points)
+                console.print(f"[green]You earned {points} points![/green]")
             else:
                 console.print(f"[red]Incorrect. The correct answer was {correct_answer}.[/red]")
+
+        console.print(f"[bold]Your final score is {player.score}.[/bold]")
+        console.print(f"[bold]Your current level is {player.level}.[/bold]")
+        
+        if player.score >= 100:
+            console.print("[gold1]Fantastic job! You're a language master![/gold1]")
+        elif player.score >= 75:
+            console.print("[yellow]Great work! You're on your way to becoming a language expert![/yellow]")
+        elif player.score >= 50:
+            console.print("[orange3]Good effort! Keep practicing to improve your skills![/orange3]")
+        else:
+            console.print("[red]Keep studying! Every question is an opportunity to learn![/red]")
 
         play_again = Prompt.ask("Do you want to play again? (yes/no)")
         if play_again.lower() != 'yes':
@@ -131,4 +137,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
