@@ -4,7 +4,7 @@ from quiz_interactif import main_function  # Assurez-vous que cette importation 
 class TestQuizInteractif(unittest.TestCase):
     def test_main_function(self):
         result = main_function()
-        self.assertEqual(result, expected_result)  # Remplacez expected_result par la valeur attendue
+        self.assertEqual(result, "Hello, World!")  # Assurez-vous que le résultat attendu est correct
 
 if __name__ == '__main__':
     unittest.main()
