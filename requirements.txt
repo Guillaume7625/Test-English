@@ -9,3 +9,5 @@ rich
 rich
 rich
 rich
+rich
+openai
