@@ -18,6 +18,11 @@ try:
 except ImportError:
     print("Rich library not found. Please install it using 'pip install rich'")
     exit(1)
+try:
+    from rich.console import Console
+except ImportError:
+    print("Rich library not found. Please install it using 'pip install rich'")
+    exit(1)
 import sys
 from rich.console import Console
 from rich.prompt import Prompt
