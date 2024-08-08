@@ -30,6 +30,12 @@ jobs:
       run: |
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
 
+    - name: Debug
+      run: |
+        python -m site
+        pip list
+        python -c "import sys; print(sys.path)"
+
     - name: Run Python script
       run: python quiz_interactif.py
       env:
