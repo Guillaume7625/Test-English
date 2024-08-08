@@ -1,18 +1,19 @@
-import openai
+import os
 import random
 import time
+import openai
+from dotenv import load_dotenv
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.progress import Progress
-from dotenv import load_dotenv
-import os
 
-# Charger les variables d'environnement depuis le fichier .env
+# Charger les variables d'environnement
 load_dotenv()
 
-# Récupérer la clé API depuis les variables d'environnement
+# Configurer la clé API OpenAI
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+# Initialiser la console Rich
 console = Console()
 
 # Catégories de questions
