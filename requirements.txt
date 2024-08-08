@@ -2,3 +2,4 @@ openai==1.40.1
 python-dotenv
 rich
 rich
+rich
