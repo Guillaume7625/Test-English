@@ -1,3 +1,4 @@
 .env
 .env7
 .github/workflows/main.yml.save
+__pycache__/
