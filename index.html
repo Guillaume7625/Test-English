@@ -1,11 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Test-English</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz d'anglais interactif - Niveau fin CM2</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #57c84d, #2ecc71);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 {
+            color: #2ecc71;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        #quizContainer {
+            display: none;
+        }
+        #questionText {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        #answerOptions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .answer-btn {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .answer-btn:hover {
+            background-color: #e0e0e0;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #progressBar {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        #progressFill {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Test-English</h1>
-    <p>This is your GitHub Pages site.</p>
+    <div class="container">
+        <h1>Quiz d'anglais interactif</h1>
+        <p>Teste tes connaissances en anglais de fin CM2 !</p>
+        <button class="btn" onclick="startQuiz()">Commencer le quiz</button>
+        <div id="quizContainer">
+            <p id="questionText"></p>
+            <div id="answerOptions"></div>
+            <p id="result"></p>
+            <div id="progressBar"><div id="progressFill"></div></div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        const quizData = [
+            {
+                question: "What is the capital of France?",
+                options: ["A. Berlin", "B. Madrid", "C. Paris", "D. Rome"],
+                correctAnswer: 2
+            },
+            {
+                question: "What is 2 + 2?",
+                options: ["A. 3", "B. 4", "C. 5", "D. 6"],
+                correctAnswer: 1
+            }
+            // Ajoutez plus de questions ici
+        ];
+        const answerButtons = [];
+
+        function startQuiz() {
+            document.querySelector('.btn').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestion < quizData.length) {
+                const question = quizData[currentQuestion];
+                document.getElementById('questionText').textContent = question.question;
+                const answerOptions = document.getElementById('answerOptions');
+                
+                // Reuse or create buttons if they don't exist
+                while (answerButtons.length < question.options.length) {
+                    const button = document.createElement('button');
+                    button.className = 'answer-btn';
+                    button.onclick = (event) => checkAnswer(event);
+                    button.setAttribute('aria-label', 'Option');
+                    answerOptions.appendChild(button);
+                    answerButtons.push(button);
+                }
+
+                question.options.forEach((option, index) => {
+                    const button = answerButtons[index];
+                    button.textContent = option;
+                    button.style.display = 'block';
+                    button.setAttribute('aria-label', `Option ${option}`);
+                    button.dataset.correct = (index === question.correctAnswer);
+                });
+
+                updateProgressBar();
+            } else {
+                document.getElementById('quizContainer').innerHTML = '<h2>Quiz terminé !</h2><p>Bravo pour ta participation !</p>';
+            }
+        }
+
+        function checkAnswer(event) {
+            const isCorrect = event.target.dataset.correct === 'true';
+            const resultElement = document.getElementById('result');
+
+            resultElement.textContent = isCorrect ? 'Correct !' : `Incorrect. La bonne réponse était : ${quizData[currentQuestion].options[quizData[currentQuestion].correctAnswer]}`;
+            resultElement.style.color = isCorrect ? '#4CAF50' : '#F44336';
+
+            currentQuestion++;
+            setTimeout(() => {
+                resultElement.textContent = '';
+                showQuestion();
+            }, 2000);
+        }
+
+        function updateProgressBar() {
+            const progress = (currentQuestion / quizData.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+    </script>
 </body>
 </html>
-<!-- Force rebuild -->
