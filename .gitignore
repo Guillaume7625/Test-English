@@ -1,5 +1,9 @@
+# Ignorer les fichiers d'environnement
 .env
 .env7
+
+# Ignorer les fichiers de configuration de workflow sauvegardés
 .github/workflows/main.yml.save
-__pycache__/
+
+# Ignorer les répertoires de cache Python
 __pycache__/
