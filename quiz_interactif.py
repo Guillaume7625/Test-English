@@ -1,15 +1,15 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-import random  # Importation ajoutée
+import random
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
-# Charger les variables d'environnement depuis .env
+# Load environment variables from .env file
 load_dotenv()
 
-# Initialiser le client OpenAI
+# Initialize OpenAI client
 api_key = os.getenv('OPENAI_API_KEY')
 if not api_key:
     logging.error("La clé API OpenAI n'est pas définie dans les variables d'environnement ou le fichier .env")
@@ -53,7 +53,7 @@ def generate_quiz(num_questions=30):
 
 def administer_quiz(questions):
     score = 0
-    random.shuffle(questions)  # Ici, random.shuffle est utilisé, donc random doit être importé
+    random.shuffle(questions)
     
     logging.info("Bienvenue au Quiz d'Anglais pour CM2 (5th Grade) !")
     logging.info("Pour chaque question, entrez la lettre correspondant à votre réponse (A, B, C ou D).")
@@ -79,7 +79,6 @@ def administer_quiz(questions):
     return score
 
 def main():
-    logging.info("Démarrage du script quiz_interactif.py")
     num_questions = 5  # Réduit pour le test en CI/CD
     quiz = generate_quiz(num_questions)
     
