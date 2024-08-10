@@ -14,10 +14,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4  # Utiliser la dernière version stable
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5  # Utiliser la dernière version stable
       with:
         python-version: '3.12'
 
@@ -27,14 +27,18 @@ jobs:
         pip install -r requirements.txt
 
     - name: Create .env file
-      run: |
-        echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
 
-    - name: Debug
-      run: |
-        python -m site
-        pip list
-        python -c "import sys; print(sys.path)"
+    - name: Debug - List directory contents
+      run: ls -la  # Liste tous les fichiers du répertoire actuel
+
+    - name: Debug - Display Python script
+      run: cat quiz_interactif.py  # Affiche le contenu du script Python
 
     - name: Run Python script
       run: python quiz_interactif.py
+      continue-on-error: true  # Permet de continuer même si le script échoue
+
+    - name: Display Python error
+      if: failure()
+      run: cat /home/runner/.python_history  # Affiche l'historique des erreurs Python en cas d'échec

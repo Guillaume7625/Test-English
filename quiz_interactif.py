@@ -1,13 +1,20 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-import random
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 # Charger les variables d'environnement depuis .env
 load_dotenv()
 
-# Initialiser le client OpenAI exactement comme spécifié
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+# Initialiser le client OpenAI
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+    logging.error("La clé API OpenAI n'est pas définie dans les variables d'environnement ou le fichier .env")
+    raise ValueError("Clé API OpenAI manquante")
+
+client = OpenAI(api_key=api_key)
 
 def generate_quiz(num_questions=30):
     questions = []
@@ -40,46 +47,51 @@ def generate_quiz(num_questions=30):
         
         return questions
     except Exception as e:
-        print(f"Erreur lors de la génération du quiz : {e}")
+        logging.error(f"Erreur lors de la génération du quiz : {e}")
         return []
 
 def administer_quiz(questions):
     score = 0
     random.shuffle(questions)
     
-    print("Bienvenue au Quiz d'Anglais pour CM2 (5th Grade) !")
-    print("Pour chaque question, entrez la lettre correspondant à votre réponse (A, B, C ou D).")
+    logging.info("Bienvenue au Quiz d'Anglais pour CM2 (5th Grade) !")
+    logging.info("Pour chaque question, entrez la lettre correspondant à votre réponse (A, B, C ou D).")
     
     for i, q in enumerate(questions):
-        print(f"\nQuestion {i + 1}: {q['question']}")
+        logging.info(f"\nQuestion {i + 1}: {q['question']}")
         for option in q['options']:
-            print(option)
+            logging.info(option)
         
         while True:
             user_answer = input("Votre réponse : ").upper()
             if user_answer in ['A', 'B', 'C', 'D']:
                 break
             else:
-                print("Réponse invalide. Veuillez entrer A, B, C ou D.")
+                logging.info("Réponse invalide. Veuillez entrer A, B, C ou D.")
         
         if user_answer == q['correct']:
             score += 1
-            print("Correct !")
+            logging.info("Correct !")
         else:
-            print(f"Incorrect. La bonne réponse était : {q['correct']}")
+            logging.info(f"Incorrect. La bonne réponse était : {q['correct']}")
     
     return score
 
 def main():
-    num_questions = 30
+    num_questions = 5  # Réduit pour le test en CI/CD
     quiz = generate_quiz(num_questions)
     
     if quiz:
-        score = administer_quiz(quiz)
-        print(f"\nVotre score final : {score}/{num_questions}")
+        if 'CI' in os.environ:  # Vérifie si on est dans un environnement CI
+            logging.info(f"Quiz généré avec succès. {len(quiz)} questions créées.")
+            for q in quiz:
+                logging.info(f"Question: {q['question']}")
+                logging.info(f"Réponse correcte: {q['correct']}")
+        else:
+            score = administer_quiz(quiz)
+            logging.info(f"\nVotre score final : {score}/{num_questions}")
     else:
-        print("Impossible de générer le quiz. Veuillez réessayer plus tard.")
+        logging.error("Impossible de générer le quiz.")
 
 if __name__ == "__main__":
     main()
-
