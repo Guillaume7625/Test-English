@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+import random  # Ajoutez cette ligne
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -52,7 +53,7 @@ def generate_quiz(num_questions=30):
 
 def administer_quiz(questions):
     score = 0
-    random.shuffle(questions)
+    random.shuffle(questions)  # Ici, random.shuffle est utilisé, donc random doit être importé
     
     logging.info("Bienvenue au Quiz d'Anglais pour CM2 (5th Grade) !")
     logging.info("Pour chaque question, entrez la lettre correspondant à votre réponse (A, B, C ou D).")
