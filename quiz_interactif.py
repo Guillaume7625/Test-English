@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-import random  # Ajoutez cette ligne
+import random  # Importation ajoutée
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -79,6 +79,7 @@ def administer_quiz(questions):
     return score
 
 def main():
+    logging.info("Démarrage du script quiz_interactif.py")
     num_questions = 5  # Réduit pour le test en CI/CD
     quiz = generate_quiz(num_questions)
     

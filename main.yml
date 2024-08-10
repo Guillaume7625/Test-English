@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
 
@@ -30,13 +30,20 @@ jobs:
       run: |
         echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
 
-    - name: Debug
-      run: |
-        python -m site
-        pip list
-        python -c "import sys; print(sys.path)"
+    - name: Debug - List directory contents
+      run: ls -la  # Lists all files in the current directory
+
+    - name: Debug - Display .env file (masked)
+      run: sed 's/OPENAI_API_KEY=.*/OPENAI_API_KEY=********/' .env
+
+    - name: Debug - Display Python script
+      run: cat quiz_interactif.py  # Displays the content of the Python script
 
     - name: Run Python script
       run: python quiz_interactif.py
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Display Python error
+      if: failure()
+      run: cat /home/runner/.python_history  # Displays Python error history if the script fails
