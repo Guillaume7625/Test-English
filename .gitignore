@@ -1,5 +1,5 @@
 # Ignorer les fichiers d'environnement
-.env
+
 .env7
 
 # Ignorer les fichiers de configuration de workflow sauvegardés
