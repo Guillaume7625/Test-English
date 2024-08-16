@@ -87,7 +87,7 @@ def administer_quiz(questions):
     return score
 
 def main():
-    num_questions = 50  # Réduit pour le test en CI/CD
+    num_questions = 5  # Réduit pour le test en CI/CD
     logging.info("Début de l'exécution du script")
     quiz = generate_quiz(num_questions)
     
