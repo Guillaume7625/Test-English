@@ -14,10 +14,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4  # Utiliser la dernière version stable
+      uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v5  # Utiliser la dernière version stable
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
 
@@ -29,16 +29,19 @@ jobs:
     - name: Create .env file
       run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
 
-    - name: Debug - List directory contents
-      run: ls -la  # Liste tous les fichiers du répertoire actuel
+    - name: Run Python script and capture logs
+      run: |
+        python quiz_interactif.py 2>&1 | tee output.log
+      env:
+        CI: true
 
-    - name: Debug - Display Python script
-      run: cat quiz_interactif.py  # Affiche le contenu du script Python
+    - name: Display logs
+      if: always()
+      run: cat output.log
 
-    - name: Run Python script
-      run: python quiz_interactif.py
-      continue-on-error: true  # Permet de continuer même si le script échoue
-
-    - name: Display Python error
-      if: failure()
-      run: cat /home/runner/.python_history  # Affiche l'historique des erreurs Python en cas d'échec
+    - name: Upload logs as artifact
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: script-logs
+        path: output.log
