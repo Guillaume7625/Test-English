@@ -58,18 +58,11 @@ def generate_quiz(num_questions=10):
         logging.error(f"Erreur lors de la génération du quiz : {e}")
         return []
 
-def update_html_with_quiz(questions):
-    with open('index.html', 'r') as file:
-        html_content = file.read()
-    
-    quiz_data = json.dumps(questions)
-    updated_html = html_content.replace('let quizData = [];', f'let quizData = {quiz_data};')
-    
-    with open('index.html', 'w') as file:
-        file.write(updated_html)
-    
-    logging.info("Fichier HTML mis à jour avec les nouvelles questions")
+def generate_quiz_json(num_questions=10):
+    quiz = generate_quiz(num_questions)
+    with open('quiz_data.json', 'w') as f:
+        json.dump(quiz, f)
+    logging.info("Quiz généré et sauvegardé dans quiz_data.json")
 
 if __name__ == "__main__":
-    quiz = generate_quiz()
-    update_html_with_quiz(quiz)
+    generate_quiz_json()
