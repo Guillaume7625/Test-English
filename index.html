@@ -5,14 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz d'anglais interactif - Niveau fin CM2</title>
     <style>
-        /* Votre CSS ici (inchangé) */
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #57c84d, #2ecc71);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 {
+            color: #2ecc71;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        #quizContainer {
+            display: none;
+        }
+        #questionText {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        #answerOptions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .answer-btn {
+            background-color: #f0f0f0;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .answer-btn:hover {
+            background-color: #e0e0e0;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #progressBar {
+            width: 100%;
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        #progressFill {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Quiz d'anglais interactif</h1>
         <p>Teste tes connaissances en anglais de fin CM2 !</p>
-        <button class="btn" onclick="startQuiz()">Commencer le quiz</button>
+        <button class="btn" onclick="startQuiz()" style="display: none;">Commencer le quiz</button>
         <div id="quizContainer">
             <p id="questionText"></p>
             <div id="answerOptions"></div>
@@ -23,8 +110,18 @@
 
     <script>
     let currentQuestion = 0;
-    let quizData = [];  // Sera remplacé par les données générées
+    let quizData = [];
     const answerButtons = [];
+
+    async function loadQuizData() {
+        try {
+            const response = await fetch('quiz_data.json');
+            quizData = await response.json();
+            document.querySelector('.btn').style.display = 'block';
+        } catch (error) {
+            console.error("Erreur lors du chargement des données du quiz:", error);
+        }
+    }
 
     function startQuiz() {
         document.querySelector('.btn').style.display = 'none';
@@ -79,6 +176,8 @@
         const progress = (currentQuestion / quizData.length) * 100;
         document.getElementById('progressFill').style.width = `${progress}%`;
     }
+
+    window.onload = loadQuizData;
     </script>
 </body>
 </html>
