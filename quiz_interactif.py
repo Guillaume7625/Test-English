@@ -62,7 +62,7 @@ def generate_quiz_json(num_questions=10):
     quiz = generate_quiz(num_questions)
     with open('quiz_data.json', 'w') as f:
         json.dump(quiz, f)
-    logging.info("Quiz généré et sauvegardé dans quiz_data.json")
+    logging.info(f"Quiz généré et sauvegardé dans quiz_data.json. Contenu: {json.dumps(quiz, indent=2)}")
 
 if __name__ == "__main__":
     generate_quiz_json()
