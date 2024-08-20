@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz d'anglais interactif - Niveau fin CM2</title>
+    <style>
+        /* Votre CSS ici (inchangé) */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz d'anglais interactif</h1>
+        <p>Teste tes connaissances en anglais de fin CM2 !</p>
+        <button class="btn" onclick="startQuiz()">Commencer le quiz</button>
+        <div id="quizContainer">
+            <p id="questionText"></p>
+            <div id="answerOptions"></div>
+            <p id="result"></p>
+            <div id="progressBar"><div id="progressFill"></div></div>
+        </div>
+    </div>
+
+    <script>
+    let currentQuestion = 0;
+    let quizData = [{"question": "1. Which is the largest planet in the solar system?", "options": ["A. Earth", "B. Mars", "C. Venus", "D. Jupiter"], "correct": "D. Jupiter"}, {"question": "2. What do plants need to grow?", "options": ["A. Sunlight", "B. Toys", "C. Coffee", "D. Papers"], "correct": "A. Sunlight"}, {"question": "3. What is the capital of the United States?", "options": ["A. New York", "B. Florida", "C. Washington D.C.", "D. California"], "correct": "C. Washington D.C."}, {"question": "4. How many legs does a spider usually have?", "options": ["A. 8", "B. 6", "C. 4", "D. 10"], "correct": "A. 8"}, {"question": "5. What body part pumps blood?", "options": ["A. Stomach", "B. Heart", "C. Brain", "D. Kidneys"], "correct": "B. Heart"}, {"question": "6. In which continent is Australia located?", "options": ["A. Africa", "B. Asia", "C. Europe", "D. Australia"], "correct": "D. Australia"}, {"question": "7. Which author wrote The Jungle Book?", "options": ["A. J.K. Rowling", "B. Rudyard Kipling", "C. Roald Dahl", "D. Mark Twain"], "correct": "B. Rudyard Kipling"}, {"question": "8. How many sides does a rectangle have?", "options": ["A. 3", "B. 4", "C. 5", "D. 6"], "correct": "B. 4"}, {"question": "9. Who invented the telephone?", "options": ["A. Isaac Newton", "B. Albert Einstein", "C. Alexander Graham Bell", "D. Thomas Edison"], "correct": "C. Alexander Graham Bell"}, {"question": "10. What is the process by which plants make their own food?", "options": ["A. Digestion", "B. Photosynthesis", "C. Reproduction", "D. Respiration"], "correct": "B. Photosynthesis"}];  // Sera remplacé par les données générées
+    const answerButtons = [];
+
+    function startQuiz() {
+        document.querySelector('.btn').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (currentQuestion < quizData.length) {
+            const question = quizData[currentQuestion];
+            document.getElementById('questionText').textContent = question.question;
+            const answerOptions = document.getElementById('answerOptions');
+            
+            while (answerButtons.length < question.options.length) {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.onclick = (event) => checkAnswer(event);
+                button.setAttribute('aria-label', 'Option');
+                answerOptions.appendChild(button);
+                answerButtons.push(button);
+            }
+
+            question.options.forEach((option, index) => {
+                const button = answerButtons[index];
+                button.textContent = option;
+                button.style.display = 'block';
+                button.setAttribute('aria-label', `Option ${option}`);
+                button.dataset.correct = (String.fromCharCode(65 + index) === question.correct);
+            });
+
+            updateProgressBar();
+        } else {
+            document.getElementById('quizContainer').innerHTML = '<h2>Quiz terminé !</h2><p>Bravo pour ta participation !</p>';
+        }
+    }
+
+    function checkAnswer(event) {
+        const isCorrect = event.target.dataset.correct === 'true';
+        const resultElement = document.getElementById('result');
+
+        resultElement.textContent = isCorrect ? 'Correct !' : `Incorrect. La bonne réponse était : ${quizData[currentQuestion].correct}`;
+        resultElement.style.color = isCorrect ? '#4CAF50' : '#F44336';
+
+        currentQuestion++;
+        setTimeout(() => {
+            resultElement.textContent = '';
+            showQuestion();
+        }, 2000);
+    }
+
+    function updateProgressBar() {
+        const progress = (currentQuestion / quizData.length) * 100;
+        document.getElementById('progressFill').style.width = `${progress}%`;
+    }
+    </script>
+</body>
+</html>

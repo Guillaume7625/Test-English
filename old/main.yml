@@ -1,0 +1,72 @@
+name: Run Python script
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Create .env file
+      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+
+    - name: Debug - Environment Info
+      run: |
+        python -m site
+        pip list
+        python -c "import sys; print(sys.path)"
+
+    - name: Debug - Display .env file (masked)
+      run: sed 's/OPENAI_API_KEY=.*/OPENAI_API_KEY=********/' .env
+
+    - name: Test API Key
+      run: |
+        python -c "
+import os
+from openai import OpenAI
+from rich import print
+
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+    print('[bold red]ERREUR: Clé API OpenAI non trouvée dans les variables d'environnement[/bold red]')
+    exit(1)
+
+client = OpenAI(api_key=api_key)
+try:
+    response = client.chat.completions.create(
+        model='gpt-3.5-turbo',
+        messages=[{'role': 'user', 'content': 'Dis bonjour'}],
+        max_tokens=5
+    )
+    print('[bold green]Succès: La clé API OpenAI fonctionne correctement[/bold green]')
+    print(f'Réponse de l\'API: [italic]{response.choices[0].message.content}[/italic]')
+except Exception as e:
+    print(f'[bold red]ERREUR: La clé API OpenAI ne fonctionne pas correctement. Erreur: {str(e)}[/bold red]')
+    exit(1)
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Run Python script
+      run: python quiz_interactif.py
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
