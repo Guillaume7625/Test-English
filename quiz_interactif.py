@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-import random
+import json
 import logging
 
 # Configuration des logs
@@ -16,12 +16,11 @@ api_key = os.getenv('OPENAI_API_KEY')
 if not api_key:
     logging.error("La clé API OpenAI n'est pas définie dans les variables d'environnement ou le fichier .env")
     raise ValueError("Clé API OpenAI manquante")
-
 logging.info("Clé API OpenAI trouvée")
 client = OpenAI(api_key=api_key)
 logging.info("Client OpenAI initialisé")
 
-def generate_quiz(num_questions=30):
+def generate_quiz(num_questions=10):
     logging.info(f"Génération d'un quiz avec {num_questions} questions")
     questions = []
     prompt = (
@@ -59,51 +58,18 @@ def generate_quiz(num_questions=30):
         logging.error(f"Erreur lors de la génération du quiz : {e}")
         return []
 
-def administer_quiz(questions):
-    score = 0
-    random.shuffle(questions)
+def update_html_with_quiz(questions):
+    with open('index.html', 'r') as file:
+        html_content = file.read()
     
-    logging.info("Bienvenue au Quiz d'Anglais pour CM2 (5th Grade) !")
-    logging.info("Pour chaque question, entrez la lettre correspondant à votre réponse (A, B, C ou D).")
+    quiz_data = json.dumps(questions)
+    updated_html = html_content.replace('let quizData = [];', f'let quizData = {quiz_data};')
     
-    for i, q in enumerate(questions):
-        logging.info(f"\nQuestion {i + 1}: {q['question']}")
-        for option in q['options']:
-            logging.info(option)
-        
-        while True:
-            user_answer = input("Votre réponse : ").upper()
-            if user_answer in ['A', 'B', 'C', 'D']:
-                break
-            else:
-                logging.info("Réponse invalide. Veuillez entrer A, B, C ou D.")
-        
-        if user_answer == q['correct']:
-            score += 1
-            logging.info("Correct !")
-        else:
-            logging.info(f"Incorrect. La bonne réponse était : {q['correct']}")
+    with open('index.html', 'w') as file:
+        file.write(updated_html)
     
-    return score
-
-def main():
-    num_questions = 5  # Réduit pour le test en CI/CD
-    logging.info("Début de l'exécution du script")
-    quiz = generate_quiz(num_questions)
-    
-    if quiz:
-        if 'CI' in os.environ:  # Vérifie si on est dans un environnement CI
-            logging.info(f"Quiz généré avec succès. {len(quiz)} questions créées.")
-            for q in quiz:
-                logging.info(f"Question: {q['question']}")
-                logging.info(f"Réponse correcte: {q['correct']}")
-        else:
-            score = administer_quiz(quiz)
-            logging.info(f"\nVotre score final : {score}/{num_questions}")
-    else:
-        logging.error("Impossible de générer le quiz.")
-    
-    logging.info("Fin de l'exécution du script")
+    logging.info("Fichier HTML mis à jour avec les nouvelles questions")
 
 if __name__ == "__main__":
-    main()
+    quiz = generate_quiz()
+    update_html_with_quiz(quiz)
