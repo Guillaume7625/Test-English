@@ -1,17 +1,14 @@
-name: Run Python script
-
+name: Generate Quiz and Deploy to GitHub Pages
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: '0 0 * * *'  # Exécute le workflow tous les jours à minuit
 
 jobs:
-  run-python-script:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -26,22 +23,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Create .env file
-      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
-
-    - name: Run Python script and capture logs
-      run: |
-        python quiz_interactif.py 2>&1 | tee output.log
+    - name: Generate quiz questions
       env:
-        CI: true
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: python quiz_interactif.py
 
-    - name: Display logs
-      if: always()
-      run: cat output.log
-
-    - name: Upload logs as artifact
-      if: always()
-      uses: actions/upload-artifact@v3
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        name: script-logs
-        path: output.log
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        publish_branch: gh-pages
