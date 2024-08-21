@@ -116,10 +116,18 @@
     async function loadQuizData() {
         try {
             const response = await fetch('quiz_data.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             quizData = await response.json();
+            if (quizData.length === 0) {
+                throw new Error("Le fichier quiz_data.json est vide");
+            }
+            console.log("Données du quiz chargées:", quizData);
             document.querySelector('.btn').style.display = 'block';
         } catch (error) {
             console.error("Erreur lors du chargement des données du quiz:", error);
+            document.querySelector('.container').innerHTML += `<p style="color: red;">Erreur: ${error.message}. Veuillez réessayer plus tard.</p>`;
         }
     }
 
@@ -178,6 +186,11 @@
     }
 
     window.onload = loadQuizData;
+
+    // Ajout pour voir les erreurs dans la console du navigateur
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error("Erreur JavaScript globale:", message, "à la ligne", lineno);
+    };
     </script>
 </body>
 </html>
